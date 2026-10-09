@@ -1,20 +1,20 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using Game.Core;
 using Game.Runtime.UI;
 using MoreMountains.Feedbacks;
 using R3;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Wheel.Rules;
 
 namespace Game.Runtime.Views
 {
     /// <summary>The revolver wheel: tier art, eight slices, spin button and the spin animation.</summary>
-    public sealed class WheelView : MonoBehaviour
+    public sealed class WheelView : MonoBehaviour, IWheelView
     {
-        public const float SliceAngle = 360f / WheelTierConfig.SliceCount;
+        public const float SliceAngle = 360f / WheelDefinition.SliceCount;
 
         [SerializeField] RectTransform shakePivot;
         [SerializeField] RectTransform pivot;

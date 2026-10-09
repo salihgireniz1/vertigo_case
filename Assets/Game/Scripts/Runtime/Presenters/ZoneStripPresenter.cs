@@ -1,9 +1,10 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Game.Core;
+using Game.Runtime.State;
 using Game.Runtime.Views;
 using R3;
+using Wheel.Rules;
 
 namespace Game.Runtime.Presenters
 {
@@ -11,10 +12,12 @@ namespace Game.Runtime.Presenters
     {
         DisposableBag subscriptions;
 
-        public ZoneStripPresenter(GameSession session, ProgressionRules rules, ZoneStripView view, CancellationToken cancellationToken)
+        public ZoneStripPresenter(RunStore store, ProgressionRules rules, ZoneStripView view, CancellationToken cancellationToken)
         {
             Func<int, WheelTier> tierOf = zone => ZoneRules.GetTier(zone, rules);
-            session.Zone
+            store.Snapshot
+                .Select(snapshot => snapshot.Zone)
+                .DistinctUntilChanged()
                 .Subscribe(zone => view.ShowZoneAsync(zone, tierOf, cancellationToken).Forget())
                 .AddTo(ref subscriptions);
         }

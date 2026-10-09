@@ -12,12 +12,26 @@ namespace Game.Runtime.Views
         [SerializeField] RectTransform content;
         [SerializeField] Image icon;
         [SerializeField] TMP_Text amount;
+        [SerializeField] Color disabledIconColor = new(0.35f, 0.35f, 0.35f, 0.6f);
+        [SerializeField] Color disabledMarkColor = new(0.95f, 0.2f, 0.15f);
 
         public void Bind(Sprite sprite, string label)
         {
             icon.sprite = sprite;
+            icon.color = Color.white;
+            amount.color = Color.white;
             amount.text = label;
             amount.enabled = !string.IsNullOrEmpty(label);
+        }
+
+        /// <summary>Greys the chamber out and marks it: a disabled bomb after a revive.</summary>
+        public void BindDisabled(Sprite sprite)
+        {
+            icon.sprite = sprite;
+            icon.color = disabledIconColor;
+            amount.color = disabledMarkColor;
+            amount.text = "X";
+            amount.enabled = true;
         }
 
         /// <summary>Counter-rotates the content so icons stay upright while the wheel turns.</summary>

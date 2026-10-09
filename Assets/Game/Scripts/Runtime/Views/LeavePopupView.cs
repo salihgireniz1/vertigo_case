@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Game.Core;
 using Game.Runtime.UI;
 using R3;
 using TMPro;
@@ -10,7 +9,7 @@ using UnityEngine.UI;
 
 namespace Game.Runtime.Views
 {
-    public sealed class LeavePopupView : PopupView
+    public sealed class LeavePopupView : PopupView, ILeavePopupView
     {
         [SerializeField] TMP_Text title;
         [SerializeField] RewardListView rewardList;
@@ -18,10 +17,10 @@ namespace Game.Runtime.Views
 
         public Observable<Unit> PlayAgainClicked => playAgainButton.OnClickAsObservable();
 
-        public UniTask ShowAsync(int zone, IEnumerable<RewardStack> stacks, CancellationToken cancellationToken)
+        public UniTask ShowAsync(int zone, IReadOnlyList<RewardEntry> rewards, CancellationToken cancellationToken)
         {
             title.text = $"ZONE {zone} - YOU LEFT WITH";
-            rewardList.ShowAll(stacks);
+            rewardList.ShowAll(rewards);
             return ShowCardAsync(cancellationToken);
         }
 

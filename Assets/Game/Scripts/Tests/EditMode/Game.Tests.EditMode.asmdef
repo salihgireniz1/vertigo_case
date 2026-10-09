@@ -2,7 +2,9 @@
     "name": "Game.Tests.EditMode",
     "rootNamespace": "Game.Tests",
     "references": [
-        "Game.Core",
+        "Game.Runtime",
+        "Game.Data",
+        "UniTask",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],
@@ -14,7 +16,8 @@
     "overrideReferences": true,
     "precompiledReferences": [
         "nunit.framework.dll",
-        "R3.dll"
+        "R3.dll",
+        "Wheel.Rules.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [

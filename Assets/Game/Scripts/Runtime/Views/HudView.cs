@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace Game.Runtime.Views
 {
     /// <summary>Static HUD: next safe/super zone badges, wallet gold and the exit button.</summary>
-    public sealed class HudView : MonoBehaviour
+    public sealed class HudView : MonoBehaviour, IHudView
     {
         [SerializeField] TMP_Text safeZone;
         [SerializeField] TMP_Text superZone;

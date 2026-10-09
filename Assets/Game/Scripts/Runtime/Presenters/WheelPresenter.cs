@@ -1,39 +1,42 @@
 using System;
-using Game.Core;
+using Game.Data;
+using Game.Runtime.State;
 using Game.Runtime.UI;
 using Game.Runtime.Views;
 using R3;
+using Wheel.Rules;
 
 namespace Game.Runtime.Presenters
 {
-    /// <summary>Renders the wheel for the current zone's tier and gates the spin button on state.</summary>
+    /// <summary>Renders the wheel for the snapshot's tier and gates the spin button.</summary>
     public sealed class WheelPresenter : IDisposable
     {
         readonly ZoneProgressionConfig progression;
         readonly WheelView view;
         DisposableBag subscriptions;
 
-        public WheelPresenter(GameSession session, ZoneProgressionConfig progression, WheelView view)
+        public WheelPresenter(RunStore store, ZoneProgressionConfig progression, WheelView view)
         {
             this.progression = progression;
             this.view = view;
-            session.Zone.Subscribe(Render).AddTo(ref subscriptions);
-            session.State.Subscribe(state => view.SetSpinInteractable(state == GameState.Idle)).AddTo(ref subscriptions);
+            store.Snapshot.Subscribe(Render).AddTo(ref subscriptions);
+            store.CanSpin.Subscribe(view.SetSpinInteractable).AddTo(ref subscriptions);
         }
 
-        void Render(int zone)
+        void Render(RunSnapshot snapshot)
         {
             var rules = progression.Rules;
-            var wheel = progression.GetWheel(ZoneRules.GetTier(zone, rules));
+            var wheel = progression.GetWheel(snapshot.Tier);
             view.SetTier(wheel.BaseSprite, wheel.IndicatorSprite, wheel.Title, wheel.Subtitle);
 
-            // Counts are verified once in GameBootstrap; a mismatch here would mean a config edited at runtime.
+            // Amounts shown here are the client's prediction from the shared rules; the server's outcome is what gets banked.
             for (var i = 0; i < view.SliceCount; i++)
             {
                 var slice = wheel.Slices[i];
                 var icon = slice.Reward != null ? slice.Reward.Icon : null;
-                var label = slice.IsBomb ? string.Empty : Formatting.Amount(ZoneRules.ScaleAmount(slice.BaseAmount, zone, rules));
-                view.GetSlice(i).Bind(icon, label);
+                if (slice.IsBomb && snapshot.BombDisabled) view.GetSlice(i).BindDisabled(icon);
+                else if (slice.IsBomb) view.GetSlice(i).Bind(icon, string.Empty);
+                else view.GetSlice(i).Bind(icon, Formatting.Amount(ZoneRules.ScaleAmount(slice.BaseAmount, snapshot.Zone, rules)));
             }
         }
 

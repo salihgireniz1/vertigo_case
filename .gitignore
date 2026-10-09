@@ -119,3 +119,7 @@ InitTestScene*.unity*
 /AgentScripts/
 /Assets/AgentScripts/
 /Assets/AgentScripts.meta
+
+# .NET build output of the shared rules project
+Shared/**/bin/
+Shared/**/obj/

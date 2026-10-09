@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.Core::Game.Core.ZoneProgressionConfig
   safeZoneInterval: 5
   superZoneInterval: 30
-  growthPerZone: 0.25
+  growthPercentPerZone: 25
   bronzeWheel: {fileID: 11400000, guid: 19172cc026eefca48b7ac34c88286b08, type: 2}
   silverWheel: {fileID: 11400000, guid: 4e291afa5c1c5214b97382da036b0793, type: 2}
   goldenWheel: {fileID: 11400000, guid: 81844738c8017e94486ad167515b3231, type: 2}

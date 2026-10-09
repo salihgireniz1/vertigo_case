@@ -15,3 +15,4 @@ MonoBehaviour:
   progression: {fileID: 11400000, guid: 7788a1821508ccf429fccc4a8f8f347c, type: 2}
   startingGold: 100
   reviveCost: 25
+  walletReward: {fileID: 11400000, guid: e08ee831d7165a44fa4e2af9bc3b55a1, type: 2}

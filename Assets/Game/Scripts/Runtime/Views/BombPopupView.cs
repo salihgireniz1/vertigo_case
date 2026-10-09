@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace Game.Runtime.Views
 {
-    public sealed class BombPopupView : PopupView
+    public sealed class BombPopupView : PopupView, IBombPopupView
     {
         [SerializeField] Button giveUpButton;
         [SerializeField] Button reviveButton;

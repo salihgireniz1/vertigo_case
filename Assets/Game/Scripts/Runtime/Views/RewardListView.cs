@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Game.Core;
+using Game.Data;
 using Game.Runtime.UI;
 using UnityEngine;
 
@@ -27,10 +27,10 @@ namespace Game.Runtime.Views
             return item;
         }
 
-        public void ShowAll(IEnumerable<RewardStack> stacks)
+        public void ShowAll(IEnumerable<RewardEntry> rewards)
         {
             Clear();
-            foreach (var stack in stacks) GetOrCreate(stack.Reward).Bind(stack.Reward.Icon, stack.Amount);
+            foreach (var entry in rewards) GetOrCreate(entry.Reward).Bind(entry.Reward.Icon, entry.Amount);
         }
 
         public void Clear()

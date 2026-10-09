@@ -2,7 +2,7 @@
     "name": "Game.Runtime",
     "rootNamespace": "Game.Runtime",
     "references": [
-        "Game.Core",
+        "Game.Data",
         "R3.Unity",
         "R3.Unity.TextMeshPro",
         "UniTask",
@@ -15,8 +15,12 @@
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Wheel.Rules.dll",
+        "R3.dll",
+        "DOTween.dll"
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],

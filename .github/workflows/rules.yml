@@ -1,0 +1,31 @@
+name: rules
+
+on:
+  push:
+    paths:
+      - "Shared/**"
+      - ".github/workflows/rules.yml"
+  pull_request:
+    paths:
+      - "Shared/**"
+
+jobs:
+  test-and-pack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Test
+        run: dotnet test Shared/Wheel.Rules.Tests --configuration Release
+      - name: Build Unity package assembly
+        run: dotnet build Shared/Wheel.Rules --configuration Release
+      - name: Pack NuGet for the server
+        run: dotnet pack Shared/Wheel.Rules --configuration Release --no-build --output artifacts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheel-rules
+          path: |
+            artifacts/*.nupkg
+            Shared/Wheel.Rules.Unity/Runtime/Wheel.Rules.dll

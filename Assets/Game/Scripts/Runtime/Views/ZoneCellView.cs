@@ -1,8 +1,8 @@
-using Game.Core;
 using Game.Runtime.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Wheel.Rules;
 
 namespace Game.Runtime.Views
 {

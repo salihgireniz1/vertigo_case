@@ -1,16 +1,19 @@
 using System;
 using Cysharp.Threading.Tasks;
-using Game.Core;
+using Game.Data;
 using Game.Runtime.Flow;
 using Game.Runtime.Presenters;
+using Game.Runtime.Services;
+using Game.Runtime.State;
 using Game.Runtime.UI;
 using Game.Runtime.Views;
 using R3;
 using UnityEngine;
+using Wheel.Rules;
 
 namespace Game.Runtime
 {
-    /// <summary>Composition root: builds the session, presenters and flow from the config and the scene views.</summary>
+    /// <summary>Composition root: builds the service, store, presenters and flow from the config and the scene views.</summary>
     public sealed class GameBootstrap : MonoBehaviour
     {
         [SerializeField] GameConfig config;
@@ -25,23 +28,31 @@ namespace Game.Runtime
         [SerializeField] BombPopupView bombPopup;
         [SerializeField] LeavePopupView leavePopup;
 
-        GameSession session;
+        IRunService service;
+        RunStore store;
         DisposableBag lifetime;
 
         void Awake()
         {
             Validate();
 
-            session = new GameSession(config.Rules, new SystemRandom());
             var progression = config.Progression;
+            var catalog = RewardCatalog.From(progression);
             var cancellationToken = this.GetCancellationTokenOnDestroy();
 
-            new WheelPresenter(session, progression, wheelView).AddTo(ref lifetime);
-            new HudPresenter(session, progression.Rules, hudView).AddTo(ref lifetime);
-            new ZoneStripPresenter(session, progression.Rules, zoneStrip, cancellationToken).AddTo(ref lifetime);
-            new RewardsPresenter(session.Rewards, rewardList).AddTo(ref lifetime);
-            new GameFlow(session, progression, wheelView, hudView, bombPopup, leavePopup, resultHoldSeconds, cancellationToken)
-                .AddTo(ref lifetime);
+            // Demo: the rules run in-process. Production: new RemoteRunService(url, token) and nothing else changes.
+            service = new LocalRunService(config, new SystemRandom());
+            store = new RunStore();
+            store.AddTo(ref lifetime);
+
+            new WheelPresenter(store, progression, wheelView).AddTo(ref lifetime);
+            new HudPresenter(store, progression.Rules, hudView).AddTo(ref lifetime);
+            new ZoneStripPresenter(store, progression.Rules, zoneStrip, cancellationToken).AddTo(ref lifetime);
+            new RewardsPresenter(store, catalog, rewardList).AddTo(ref lifetime);
+
+            var flow = new GameFlow(service, store, catalog, wheelView, hudView, bombPopup, leavePopup, resultHoldSeconds, cancellationToken);
+            flow.AddTo(ref lifetime);
+            flow.StartAsync().Forget();
         }
 
         void OnDestroy() => lifetime.Dispose();
@@ -60,13 +71,8 @@ namespace Game.Runtime
 
             var problem = config.Progression.Validate();
             if (problem != null) throw new InvalidOperationException($"{name}: {problem}");
-
-            foreach (var tier in (WheelTier[])Enum.GetValues(typeof(WheelTier)))
-            {
-                var wheel = config.Progression.GetWheel(tier);
-                if (wheel.Slices.Count != wheelView.SliceCount)
-                    throw new InvalidOperationException($"{name}: {wheel.name} has {wheel.Slices.Count} slices but the wheel view has {wheelView.SliceCount}");
-            }
+            if (wheelView.SliceCount != WheelDefinition.SliceCount)
+                throw new InvalidOperationException($"{name}: the wheel view has {wheelView.SliceCount} slices, the rules expect {WheelDefinition.SliceCount}");
         }
 
         void Require(UnityEngine.Object reference, string field)

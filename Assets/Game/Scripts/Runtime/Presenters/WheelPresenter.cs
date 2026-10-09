@@ -27,7 +27,8 @@ namespace Game.Runtime.Presenters
         {
             var rules = progression.Rules;
             var wheel = progression.GetWheel(snapshot.Tier);
-            view.SetTier(wheel.BaseSprite, wheel.IndicatorSprite, wheel.Title, wheel.Subtitle);
+            var subtitle = snapshot.BombDisabled ? "Revived: the bomb chamber is disabled for this spin" : wheel.Subtitle;
+            view.SetTier(wheel.BaseSprite, wheel.IndicatorSprite, wheel.Title, subtitle);
 
             // Amounts shown here are the client's prediction from the shared rules; the server's outcome is what gets banked.
             for (var i = 0; i < view.SliceCount; i++)

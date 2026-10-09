@@ -1,5 +1,9 @@
 # Wheel of Fortune — Design Spec
 
+> Initial design, written before implementation. The shipped architecture moved the model into the shared
+> `Shared/Wheel.Rules` library behind `IRunService` (server authority) and changed revive to replay the same zone
+> with the bomb disabled; see the README for the current state.
+
 Vertigo Games Game Developer demo. Critical Strike "Card game" rules, spinning wheel instead of cards.
 
 ## Goal

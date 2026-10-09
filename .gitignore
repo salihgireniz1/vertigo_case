@@ -123,3 +123,7 @@ InitTestScene*.unity*
 # .NET build output of the shared rules project
 Shared/**/bin/
 Shared/**/obj/
+
+# The shared rules project is hand-written, not Unity-generated
+!Shared/**/*.csproj
+!Shared/**/*.pdb

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>Wheel.Rules</AssemblyName>
+    <RootNamespace>Wheel.Rules</RootNamespace>
+    <Version>1.0.0</Version>
+    <PackageId>Wheel.Rules</PackageId>
+    <Authors>Salih Gireniz</Authors>
+    <Description>Server-authoritative rules of the wheel-of-fortune mini game. Pure C#, no Unity dependency; shared by the Unity client and the game server.</Description>
+    <DebugType>portable</DebugType>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <!-- Unity consumes the compiled assembly through the local UPM package next to this project. -->
+  <Target Name="CopyToUnityPackage" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(MSBuildThisFileDirectory)../Wheel.Rules.Unity/Runtime/" />
+  </Target>
+
+</Project>

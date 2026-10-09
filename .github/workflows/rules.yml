@@ -18,11 +18,11 @@ jobs:
         with:
           dotnet-version: "8.0.x"
       - name: Test
-        run: dotnet test Shared/Wheel.Rules.Tests --configuration Release
+        run: dotnet test Shared/Wheel.Rules.Tests/Wheel.Rules.Tests.csproj --configuration Release
       - name: Build Unity package assembly
-        run: dotnet build Shared/Wheel.Rules --configuration Release
+        run: dotnet build Shared/Wheel.Rules/Wheel.Rules.csproj --configuration Release
       - name: Pack NuGet for the server
-        run: dotnet pack Shared/Wheel.Rules --configuration Release --no-build --output artifacts
+        run: dotnet pack Shared/Wheel.Rules/Wheel.Rules.csproj --configuration Release --no-build --output artifacts
       - uses: actions/upload-artifact@v4
         with:
           name: wheel-rules

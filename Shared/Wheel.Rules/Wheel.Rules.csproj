@@ -1,8 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- Plain `dotnet build` produces the Release assembly Unity consumes; pass -c Debug explicitly when needed. -->
-    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>9.0</LangVersion>
     <Nullable>disable</Nullable>

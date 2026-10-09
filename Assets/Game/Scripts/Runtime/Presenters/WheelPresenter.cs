@@ -27,8 +27,8 @@ namespace Game.Runtime.Presenters
             var wheel = progression.GetWheel(ZoneRules.GetTier(zone, rules));
             view.SetTier(wheel.BaseSprite, wheel.IndicatorSprite, wheel.Title, wheel.Subtitle);
 
-            var count = Math.Min(view.SliceCount, wheel.Slices.Count);
-            for (var i = 0; i < count; i++)
+            // Counts are verified once in GameBootstrap; a mismatch here would mean a config edited at runtime.
+            for (var i = 0; i < view.SliceCount; i++)
             {
                 var slice = wheel.Slices[i];
                 var icon = slice.Reward != null ? slice.Reward.Icon : null;

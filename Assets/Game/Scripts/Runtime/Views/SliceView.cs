@@ -26,7 +26,7 @@ namespace Game.Runtime.Views
         public void PunchHighlight()
         {
             content.DOKill(true);
-            content.DOPunchScale(Vector3.one * 0.35f, 0.6f, 6, 0.6f);
+            content.DOPunchScale(Vector3.one * 0.35f, 0.6f, 6, 0.6f).SetLink(gameObject);
         }
 
 #if UNITY_EDITOR

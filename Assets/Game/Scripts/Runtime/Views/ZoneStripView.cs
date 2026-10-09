@@ -21,7 +21,7 @@ namespace Game.Runtime.Views
 
         public async UniTask ShowZoneAsync(int zone, Func<int, WheelTier> tierOf, CancellationToken cancellationToken)
         {
-            var slide = shownZone >= 0 && zone - shownZone == 1; // first draw, restart or revive jump: no slide
+            var slide = shownZone >= 0 && zone - shownZone == 1; // first draw or restart: no slide
             Fill(zone, tierOf);
             if (!slide) return;
 
@@ -29,7 +29,10 @@ namespace Game.Runtime.Views
             var cellWidth = ((RectTransform)cells[0].transform).rect.width + layout.spacing;
             content.DOKill();
             content.anchoredPosition = new Vector2(cellWidth, 0f);
-            await content.DOAnchorPosX(0f, slideDuration).SetEase(Ease.OutCubic).ToUniTask(cancellationToken: cancellationToken);
+            await content.DOAnchorPosX(0f, slideDuration)
+                .SetEase(Ease.OutCubic)
+                .SetLink(gameObject)
+                .ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, cancellationToken);
         }
 
         void Fill(int zone, Func<int, WheelTier> tierOf)

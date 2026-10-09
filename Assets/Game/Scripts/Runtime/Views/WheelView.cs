@@ -61,8 +61,9 @@ namespace Game.Runtime.Views
             pivot.DOKill();
             await pivot.DOLocalRotate(new Vector3(0f, 0f, end), spinDuration, RotateMode.FastBeyond360)
                 .SetEase(spinEase)
+                .SetLink(gameObject)
                 .OnUpdate(KeepSlicesUpright)
-                .ToUniTask(cancellationToken: cancellationToken);
+                .ToUniTask(TweenCancelBehaviour.KillAndCancelAwait, cancellationToken);
             KeepSlicesUpright();
         }
 
@@ -75,7 +76,7 @@ namespace Game.Runtime.Views
         public void PlayBomb()
         {
             shakePivot.DOKill(true);
-            shakePivot.DOShakeAnchorPos(0.5f, bombShakeStrength, 24);
+            shakePivot.DOShakeAnchorPos(0.5f, bombShakeStrength, 24).SetLink(gameObject);
             if (bombFeedback != null) bombFeedback.PlayFeedbacks();
         }
 
@@ -95,7 +96,9 @@ namespace Game.Runtime.Views
             title = UiRefs.Find<TMP_Text>(this, "ui_text_wheel_title_value");
             subtitle = UiRefs.Find<TMP_Text>(this, "ui_text_wheel_subtitle_value");
             spinButton = UiRefs.Find<Button>(this, "ui_button_spin");
+            // Slice i must sit at the i-th chamber (clockwise from the top); names carry the index: ui_slice_wheel_0 .. _7.
             slices = pivot != null ? pivot.GetComponentsInChildren<SliceView>(true) : new SliceView[0];
+            System.Array.Sort(slices, (a, b) => string.CompareOrdinal(a.name, b.name));
             spinStartFeedback = UiRefs.Find<MMF_Player>(this, "ui_feedback_spin_start");
             winFeedback = UiRefs.Find<MMF_Player>(this, "ui_feedback_win");
             bombFeedback = UiRefs.Find<MMF_Player>(this, "ui_feedback_bomb");

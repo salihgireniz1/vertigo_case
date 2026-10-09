@@ -16,6 +16,7 @@ namespace Game.Runtime.Flow
         readonly BombPopupView bombPopup;
         readonly LeavePopupView leavePopup;
         readonly TimeSpan resultHold;
+        readonly CancellationTokenSource lifetime;
         readonly CancellationToken cancellationToken;
         DisposableBag subscriptions;
 
@@ -27,15 +28,16 @@ namespace Game.Runtime.Flow
             BombPopupView bombPopup,
             LeavePopupView leavePopup,
             float resultHoldSeconds,
-            CancellationToken cancellationToken)
+            CancellationToken parentCancellation)
         {
             this.session = session;
             this.progression = progression;
             this.wheel = wheel;
             this.bombPopup = bombPopup;
             this.leavePopup = leavePopup;
-            this.cancellationToken = cancellationToken;
             resultHold = TimeSpan.FromSeconds(resultHoldSeconds);
+            lifetime = CancellationTokenSource.CreateLinkedTokenSource(parentCancellation);
+            cancellationToken = lifetime.Token;
 
             wheel.SpinClicked.Subscribe(_ => SpinAsync().Forget()).AddTo(ref subscriptions);
             hud.ExitClicked.Subscribe(_ => LeaveAsync().Forget()).AddTo(ref subscriptions);
@@ -79,12 +81,18 @@ namespace Game.Runtime.Flow
             await bombPopup.HideAsync(cancellationToken);
         }
 
+        // The session transition happens first so a second tap during the hide tween cannot act on a stale state.
         async UniTaskVoid RestartAsync(PopupView popup)
         {
+            if (!session.TryRestart()) return;
             await popup.HideAsync(cancellationToken);
-            session.Restart();
         }
 
-        public void Dispose() => subscriptions.Dispose();
+        public void Dispose()
+        {
+            subscriptions.Dispose();
+            lifetime.Cancel();
+            lifetime.Dispose();
+        }
     }
 }

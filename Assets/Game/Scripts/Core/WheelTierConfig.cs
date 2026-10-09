@@ -23,19 +23,30 @@ namespace Game.Core
         public Sprite IndicatorSprite => indicatorSprite;
         public IReadOnlyList<WheelSliceData> Slices => slices;
 
-        void OnValidate()
+        /// <summary>Returns null when the wheel is playable, otherwise the first problem found.</summary>
+        public string Validate()
         {
-            if (slices.Length != SliceCount)
-                Debug.LogWarning($"{name}: wheel must have exactly {SliceCount} slices, has {slices.Length}", this);
+            if (slices.Length != SliceCount) return $"must have exactly {SliceCount} slices, has {slices.Length}";
 
             var bombs = 0;
-            foreach (var slice in slices)
-                if (slice != null && slice.IsBomb) bombs++;
+            for (var i = 0; i < slices.Length; i++)
+            {
+                var slice = slices[i];
+                if (slice == null) return $"slice {i} is empty";
+                if (slice.IsBomb) bombs++;
+                if (slice.Reward == null) return $"slice {i} has no reward (bomb slices need one for the icon)";
+                if (!slice.IsBomb && slice.Weight <= 0f) return $"slice {i} can never be hit (weight 0)";
+            }
 
-            if (tier == WheelTier.Bronze && bombs != 1)
-                Debug.LogWarning($"{name}: bronze wheel must have exactly one bomb, has {bombs}", this);
-            if (tier != WheelTier.Bronze && bombs > 0)
-                Debug.LogWarning($"{name}: {tier} wheel is risk-free and must not contain a bomb", this);
+            if (tier == WheelTier.Bronze && bombs != 1) return $"bronze wheel must have exactly one bomb, has {bombs}";
+            if (tier != WheelTier.Bronze && bombs > 0) return $"{tier} wheel is risk-free and must not contain a bomb";
+            return null;
+        }
+
+        void OnValidate()
+        {
+            var problem = Validate();
+            if (problem != null) Debug.LogError($"{name}: {problem}", this);
         }
     }
 }

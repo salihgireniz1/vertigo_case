@@ -13,6 +13,11 @@ namespace Game.Runtime.Views
 
         readonly Dictionary<RewardDefinition, RewardItemView> items = new();
 
+        void Awake()
+        {
+            if (itemPrefab == null) throw new System.InvalidOperationException($"{name}: itemPrefab is not assigned");
+        }
+
         public RewardItemView GetOrCreate(RewardDefinition reward)
         {
             if (items.TryGetValue(reward, out var item)) return item;

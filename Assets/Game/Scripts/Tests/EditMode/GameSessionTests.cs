@@ -189,15 +189,37 @@ namespace Game.Tests
         }
 
         [Test]
-        public void Restart_ResetsZoneRewardsAndState()
+        public void TryRestart_AfterBomb_ResetsZoneRewardsAndState()
         {
             var session = NewSession(RollCash, RollBomb);
             SpinOnce(session);
             SpinOnce(session);
-            session.Restart();
+            Assert.IsTrue(session.TryRestart());
             Assert.AreEqual(1, session.Zone.CurrentValue);
             Assert.AreEqual(GameState.Idle, session.State.CurrentValue);
             Assert.IsEmpty(session.Rewards.Stacks);
+        }
+
+        [Test]
+        public void TryRestart_AfterLeave_IsAllowed()
+        {
+            var session = NewSession(RollCash);
+            for (var i = 0; i < 4; i++) SpinOnce(session); // zone 5
+            session.TryLeave();
+            Assert.IsTrue(session.TryRestart());
+            Assert.AreEqual(GameState.Idle, session.State.CurrentValue);
+        }
+
+        [Test]
+        public void TryRestart_WhileRunIsAlive_IsRefused()
+        {
+            var session = NewSession(RollCash, RollBomb);
+            SpinOnce(session);
+            Assert.IsFalse(session.TryRestart(), "idle run must not be wiped");
+            SpinOnce(session);          // bombed
+            session.TryRevive();        // back to idle at zone 3
+            Assert.IsFalse(session.TryRestart(), "a revived run must not be wiped by a late Give Up");
+            Assert.AreEqual(3, session.Zone.CurrentValue);
         }
 
         [Test]

@@ -75,11 +75,14 @@ namespace Game.Core
             return true;
         }
 
-        public void Restart()
+        /// <summary>Starts a fresh run. Only legal once the current run has ended (bomb or leave).</summary>
+        public bool TryRestart()
         {
+            if (state.Value != GameState.Bombed && state.Value != GameState.Left) return false;
             Rewards.Clear();
             zone.Value = 1;
             state.Value = GameState.Idle;
+            return true;
         }
 
         void Require(GameState expected)

@@ -1,0 +1,24 @@
+{
+    "name": "Game.Runtime",
+    "rootNamespace": "Game.Runtime",
+    "references": [
+        "Game.Core",
+        "R3.Unity",
+        "R3.Unity.TextMeshPro",
+        "UniTask",
+        "UniTask.DOTween",
+        "DOTween.Modules",
+        "MoreMountains.Tools",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

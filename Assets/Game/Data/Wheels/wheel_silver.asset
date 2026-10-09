@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54e1e516e3a6299418d49af63dabdbdf, type: 3}
+  m_Name: wheel_silver
+  m_EditorClassIdentifier: Game.Core::Game.Core.WheelTierConfig
+  tier: 1
+  title: SILVER SPIN
+  subtitle: 'Safe zone: no bomb, cash out any time'
+  baseSprite: {fileID: 21300000, guid: 7274ae50c8c05b242abe859e3cdad4ff, type: 3}
+  indicatorSprite: {fileID: 21300000, guid: 5db7f690a8eac3346a0ccc19e9cb5731, type: 3}
+  slices:
+  - reward: {fileID: 11400000, guid: 8918f8a38a5216a4696587d9bb47ea75, type: 2}
+    baseAmount: 300
+    weight: 1
+    isBomb: 0
+  - reward: {fileID: 11400000, guid: e08ee831d7165a44fa4e2af9bc3b55a1, type: 2}
+    baseAmount: 15
+    weight: 1
+    isBomb: 0
+  - reward: {fileID: 11400000, guid: 08530071db6b02240ae00ea11f006643, type: 2}
+    baseAmount: 1
+    weight: 1
+    isBomb: 0
+  - reward: {fileID: 11400000, guid: 0eab8c724e320e44bbffcd77838a2eaf, type: 2}
+    baseAmount: 1
+    weight: 1
+    isBomb: 0
+  - reward: {fileID: 11400000, guid: 124fe8ff3a3b4714e974dfddc39470e0, type: 2}
+    baseAmount: 3
+    weight: 1
+    isBomb: 0
+  - reward: {fileID: 11400000, guid: faf771d3e526d714b9b8867d509fa608, type: 2}
+    baseAmount: 2
+    weight: 1
+    isBomb: 0
+  - reward: {fileID: 11400000, guid: 6967de5d97dc8c74aaef67438adf79a4, type: 2}
+    baseAmount: 20
+    weight: 1
+    isBomb: 0
+  - reward: {fileID: 11400000, guid: 8f5432a3439a634428ea9819be64fbe0, type: 2}
+    baseAmount: 20
+    weight: 1
+    isBomb: 0

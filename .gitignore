@@ -116,3 +116,6 @@ InitTestScene*.unity*
 # Case brief and raw hand-off assets (imported under Assets/Game/Sprites)
 *.docx
 /demo_content/
+/AgentScripts/
+/Assets/AgentScripts/
+/Assets/AgentScripts.meta

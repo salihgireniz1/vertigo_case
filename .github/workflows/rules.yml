@@ -13,8 +13,8 @@ jobs:
   test-and-pack:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "8.0.x"
       - name: Test
@@ -23,7 +23,7 @@ jobs:
         run: dotnet build Shared/Wheel.Rules/Wheel.Rules.csproj --configuration Release
       - name: Pack NuGet for the server
         run: dotnet pack Shared/Wheel.Rules/Wheel.Rules.csproj --configuration Release --no-build --output artifacts
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: wheel-rules
           path: |

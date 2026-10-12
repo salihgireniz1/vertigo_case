@@ -19,6 +19,7 @@ namespace Game.Tests
         FakeHudView hud;
         FakeBombPopup bombPopup;
         FakeLeavePopup leavePopup;
+        FakeErrorPopup errorPopup;
         GameFlow flow;
         RewardDefinition cash;
 
@@ -31,12 +32,13 @@ namespace Game.Tests
             hud = new FakeHudView();
             bombPopup = new FakeBombPopup();
             leavePopup = new FakeLeavePopup();
+            errorPopup = new FakeErrorPopup();
 
             cash = ScriptableObject.CreateInstance<RewardDefinition>();
             cash.name = "reward_cash";
             var catalog = CatalogWith(cash);
 
-            flow = new GameFlow(service, store, catalog, wheel, hud, bombPopup, leavePopup, resultHoldSeconds: 0f, CancellationToken.None);
+            flow = new GameFlow(service, store, catalog, wheel, hud, bombPopup, leavePopup, errorPopup, resultHoldSeconds: 0f, CancellationToken.None);
             flow.StartAsync().Forget();
         }
 
@@ -179,6 +181,27 @@ namespace Game.Tests
             hud.Clicks.OnNext(Unit.Default);
             Assert.AreEqual(0, service.LeaveCalls);
             Assert.IsFalse(leavePopup.Visible);
+        }
+
+        [Test]
+        public void Spin_WhenAuthorityUnreachable_ShowsErrorAndResendsOnRetry()
+        {
+            service.FailSpins = 1;
+            service.Outcomes.Enqueue(Outcome(3, Snapshots.Idle(2), bomb: false));
+
+            wheel.Clicks.OnNext(Unit.Default);
+            Assert.IsTrue(errorPopup.Visible, "the error popup is up");
+            Assert.AreEqual("offline", errorPopup.ShownReason);
+            Assert.AreEqual(1, service.SpinCalls);
+            Assert.IsTrue(store.Busy.CurrentValue, "the gate stays closed while the error is up");
+            Assert.AreEqual(0, wheel.SpunTo.Count, "nothing animates without an answer");
+
+            errorPopup.Retry();
+            Assert.IsFalse(errorPopup.Visible);
+            Assert.AreEqual(2, service.SpinCalls, "the same intent is sent again");
+            wheel.FinishSpin();
+            Assert.AreEqual(2, store.Current.Zone, "the retried answer is applied");
+            Assert.IsFalse(store.Busy.CurrentValue);
         }
 
         [Test]

@@ -53,7 +53,7 @@ Assets/Game/
 **Server authority.** The client never computes a spin. It sends an intent (`spin`, `leave`, `revive`, `restart`) through `IRunService` and gets back a `SpinOutcome` / `RunSnapshot` from the shared DTOs. The wheel animates to the slice it was told, then the snapshot is applied to `RunStore` and every view re-renders from it. `CanSpin`, `CanLeave`, `CanRevive` arrive in the snapshot; the client shows what the authority allows.
 
 - `LocalRunService` runs `Wheel.Rules.GameSession` in-process. That is what the demo ships.
-- `RemoteRunService` is the HTTP transport for a backend that runs the same `GameSession` (a Unity Cloud Code C# module or any .NET service referencing the NuGet). Not wired in the demo, no backend is deployed. Each request carries a sequence number so a retry is idempotent.
+- `RemoteRunService` is the HTTP transport for a backend that runs the same `GameSession` (a Unity Cloud Code C# module or any .NET service referencing the NuGet). Not wired in the demo, no backend is deployed. Each intent carries a sequence number that a retry reuses, so the server never rolls twice for one tap. Requests time out after 10 s; an unreachable server raises `RunServiceUnavailableException`, which `GameFlow` turns into the "CONNECTION LOST" popup and a RETRY of the same intent while the busy gate stays closed.
 
 **Shared library.** `Shared/Wheel.Rules` is built with `dotnet build -c Release`; a post-build step copies the DLL into `Shared/Wheel.Rules.Unity`, which the project consumes as a local UPM package (`Packages/manifest.json`: `file:../Shared/Wheel.Rules.Unity`). The server consumes `dotnet pack` output. CI runs the 51 rules tests and packs both on every change under `Shared/`. RNG is behind `IRandom`, so tests script outcomes and the server can later publish a commit-reveal seed for provably fair spins.
 
@@ -78,7 +78,7 @@ Third-party: R3 (reactive store and bindings), UniTask (async flow), DOTween (wh
 ## Tests
 
 - `dotnet test Shared/Wheel.Rules.Tests`: 51 tests over `ZoneRules`, `SpinResolver` and `GameSession` (transition guards, bomb stop, revive keeping the rewards and replaying without the bomb, give-up wipe, wallet credit on leave, scaling, validation).
-- Unity Test Runner, EditMode: 9 `GameFlow` tests with a fake authority and fake views (busy gate, bomb popup, revive, double tap, exit). Editor only (Window > General > Test Runner); CI has no Unity licence, so it runs only the shared library tests.
+- Unity Test Runner, EditMode: 10 `GameFlow` tests with a fake authority and fake views (busy gate, bomb popup, revive, double tap, exit, outage + retry). Editor only (Window > General > Test Runner); CI has no Unity licence, so it runs only the shared library tests.
 
 ## Screenshots
 

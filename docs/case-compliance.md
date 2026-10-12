@@ -65,7 +65,7 @@ verify each line without asking. Architecture and reasoning are in [design.md](d
 |---|---|
 | 2026-10-09 | Brief analysed, Critical Strike card game studied. Design spec. Rules extracted into `Shared/Wheel.Rules` with tests. Unity project on 6000.3.23f1, third-party packages (DOTween Pro, UniTask, R3, Feel). Data assets, UI prefabs, views, presenters, flow. First APK, video, screenshots, release v1.0.0. CI for the shared library. |
 | 2026-10-10 | CI maintenance (Node 24 actions). |
-| 2026-10-12 | Wheel slices centred on the chamber art (ring radius measured from the sprites), slice content moved to layout components so every reward icon fits. Revive rule corrected: the bomb no longer wipes rewards before the player decides. Scratch files and personal editor tools removed from the repository. Docs rewritten. Release v1.2.0 with a new APK and video. |
+| 2026-10-12 | Wheel slices centred on the chamber art (ring radius measured from the sprites), slice content moved to layout components so every reward icon fits. Revive rule corrected: the bomb no longer wipes rewards before the player decides. Scratch files and personal editor tools removed from the repository. Docs rewritten. Release v1.2.0 with a new APK and video. Outage handling added: "CONNECTION LOST" popup, retry with the same sequence number, request timeout; 10th `GameFlow` test. Release v1.3.0. |
 
 ## 6. How to verify locally
 

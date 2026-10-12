@@ -14,9 +14,16 @@ namespace Game.Tests
         public readonly Queue<SpinOutcome> Outcomes = new();
         public RunSnapshot NextSnapshot = Snapshots.Idle(1);
         public int SpinCalls, LeaveCalls, ReviveCalls, RestartCalls;
+        /// <summary>How many of the next spin requests fail as if the authority were unreachable.</summary>
+        public int FailSpins;
 
         public UniTask<RunSnapshot> StartAsync(CancellationToken cancellationToken) => UniTask.FromResult(NextSnapshot);
-        public UniTask<SpinOutcome> SpinAsync(CancellationToken cancellationToken) { SpinCalls++; return UniTask.FromResult(Outcomes.Dequeue()); }
+        public UniTask<SpinOutcome> SpinAsync(CancellationToken cancellationToken)
+        {
+            SpinCalls++;
+            if (FailSpins > 0) { FailSpins--; throw new RunServiceUnavailableException("offline"); }
+            return UniTask.FromResult(Outcomes.Dequeue());
+        }
         public UniTask<RunSnapshot> LeaveAsync(CancellationToken cancellationToken) { LeaveCalls++; return UniTask.FromResult(NextSnapshot); }
         public UniTask<RunSnapshot> ReviveAsync(CancellationToken cancellationToken) { ReviveCalls++; return UniTask.FromResult(NextSnapshot); }
         public UniTask<RunSnapshot> RestartAsync(CancellationToken cancellationToken) { RestartCalls++; return UniTask.FromResult(NextSnapshot); }
@@ -86,6 +93,32 @@ namespace Game.Tests
             ShownZone = zone;
             ShownRewards = rewards;
             return UniTask.CompletedTask;
+        }
+
+        public UniTask HideAsync(CancellationToken cancellationToken) { Visible = false; return UniTask.CompletedTask; }
+    }
+
+    public sealed class FakeErrorPopup : IErrorPopupView
+    {
+        public bool Visible;
+        public int Shows;
+        public string ShownReason;
+        UniTaskCompletionSource pendingRetry;
+
+        public UniTask ShowUntilRetryAsync(string reason, CancellationToken cancellationToken)
+        {
+            Visible = true;
+            Shows++;
+            ShownReason = reason;
+            pendingRetry = new UniTaskCompletionSource();
+            return pendingRetry.Task;
+        }
+
+        /// <summary>The player taps RETRY: the popup hides and the awaiting flow continues.</summary>
+        public void Retry()
+        {
+            Visible = false;
+            pendingRetry.TrySetResult();
         }
 
         public UniTask HideAsync(CancellationToken cancellationToken) { Visible = false; return UniTask.CompletedTask; }

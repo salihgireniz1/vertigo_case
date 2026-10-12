@@ -31,6 +31,7 @@ Deliverables: GitHub repository, APK attached as a GitHub Release, gameplay vide
 | 10-09 | Reward scaling uses integer math: `amount = base * (100 + growth% * (zone - 1)) / 100`, rounded half up. | A float formula can differ by one unit between platforms; client and server must agree exactly. |
 | 10-12 | Hitting the bomb no longer clears the rewards on the spot. The bomb puts the run in `Bombed`; revive keeps everything, give up (restart) wipes it. | A revive that only kept the zone number was worth almost nothing; keeping the rewards is the whole point of paying for it. Rules tests updated. |
 | 10-12 | Wheel slice content is laid out with Unity layout components (`VerticalLayoutGroup` + `LayoutElement` + `Image.preserveAspect`), not code-computed rects. Slice rects equal the chamber circles; the ring radius is measured from the base sprites. | Native layout is inspectable and tweakable in the editor; a code fit was tried and removed. |
+| 10-12 | An unreachable authority is a first-class state: `RunServiceUnavailableException`, a "CONNECTION LOST" popup with RETRY, the same intent resent with the same sequence number, 10 s request timeout. | The client is a renderer of server answers; it must survive not getting one without unlocking the UI or rolling twice. |
 
 ## 3. Layers
 
@@ -174,8 +175,14 @@ What the design already provides for this:
   server read the same shape. Enums are integers in both.
 * **Permissions** travel in the snapshot. The client disables buttons from `CanSpin` / `CanLeave` /
   `CanRevive`; the server re-checks them anyway and answers 409 on a stale intent.
-* **Idempotency key.** `RemoteRunService` sends a sequence number with every intent so a retried spin
-  is answered with the stored outcome instead of a second roll.
+* **Idempotency key.** `RemoteRunService` sends a sequence number with every intent. The number is
+  allocated per intent, not per request: while an intent is unanswered, a retry resends it with the
+  same number, so the server answers with the stored outcome instead of rolling again.
+* **Outage handling.** Requests time out after 10 s. A connection error, timeout or 5xx becomes
+  `RunServiceUnavailableException`; `GameFlow.SendAsync` catches only that, shows the
+  `ui_popup_error` modal ("CONNECTION LOST") and resends the same intent when the player taps RETRY.
+  The busy gate stays closed meanwhile, so no other intent can slip in between. A 4xx is treated as a
+  refused intent and is not retried.
 * **Resume.** `run/start` returns the current snapshot, so a client that reconnects mid-run renders
   the run exactly where the server has it.
 * **Fairness extension.** Because `IRandom` is injected, the server can publish a commit-reveal seed
@@ -185,14 +192,16 @@ What the design already provides for this:
 
 Honest list, in priority order, of what a production rollout would add:
 
-1. **Client error handling.** `GameFlow` releases the busy gate in `finally`, but there is no `catch`:
-   a failed request is logged by UniTask and the UI simply unlocks. Production needs a timeout on the
-   `UnityWebRequest`, a retry that reuses the same sequence number, and a "connection lost" popup.
-2. **`RemoteRunService` is unexercised.** It compiles and mirrors `LocalRunService`, but no server
-   exists to run it against; a sample host (section 6) plus an integration test would close that.
-3. **Wheel content versioning.** The client renders slice icons from its own `WheelTierConfig`. A
+1. **`RemoteRunService` has not met a real server.** It compiles, mirrors `LocalRunService` and its
+   failure path is exercised through a simulated outage (`AgentScripts/FlakyService.cs`), but no
+   backend exists to run it against; a sample host (section 6) plus an integration test would close
+   that.
+2. **Wheel content versioning.** The client renders slice icons from its own `WheelTierConfig`. A
    content hash in `RunSnapshot` would let the client detect a server-side wheel change.
-4. **EditMode tests run only in the editor.** The 9 `GameFlow` tests need Unity; CI covers the rules
+3. **A refused intent (4xx) has no UI.** The server's 409 would carry the current snapshot; the client
+   should apply it and re-render instead of surfacing an exception. Cannot happen with the local
+   authority, so it is not built.
+4. **EditMode tests run only in the editor.** The 10 `GameFlow` tests need Unity; CI covers the rules
    only. A licensed Unity runner would run both.
 5. **No audio.** No audio assets were provided; out of scope for the demo.
 

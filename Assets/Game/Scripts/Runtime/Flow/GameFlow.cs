@@ -23,6 +23,7 @@ namespace Game.Runtime.Flow
         readonly IWheelView wheel;
         readonly IBombPopupView bombPopup;
         readonly ILeavePopupView leavePopup;
+        readonly IErrorPopupView errorPopup;
         readonly TimeSpan resultHold;
         readonly CancellationTokenSource lifetime;
         readonly CancellationToken cancellationToken;
@@ -36,6 +37,7 @@ namespace Game.Runtime.Flow
             IHudView hud,
             IBombPopupView bombPopup,
             ILeavePopupView leavePopup,
+            IErrorPopupView errorPopup,
             float resultHoldSeconds,
             CancellationToken parentCancellation)
         {
@@ -45,6 +47,7 @@ namespace Game.Runtime.Flow
             this.wheel = wheel;
             this.bombPopup = bombPopup;
             this.leavePopup = leavePopup;
+            this.errorPopup = errorPopup;
             resultHold = TimeSpan.FromSeconds(resultHoldSeconds);
             lifetime = CancellationTokenSource.CreateLinkedTokenSource(parentCancellation);
             cancellationToken = lifetime.Token;
@@ -58,7 +61,7 @@ namespace Game.Runtime.Flow
 
         public async UniTask StartAsync()
         {
-            store.Apply(await service.StartAsync(cancellationToken));
+            store.Apply(await SendAsync(service.StartAsync));
         }
 
         async UniTaskVoid SpinAsync()
@@ -66,7 +69,7 @@ namespace Game.Runtime.Flow
             if (!TryBegin(store.Current.CanSpin)) return;
             try
             {
-                var outcome = await service.SpinAsync(cancellationToken);
+                var outcome = await SendAsync(service.SpinAsync);
                 await wheel.SpinToAsync(outcome.SliceIndex, cancellationToken);
                 if (outcome.IsBomb) wheel.PlayBomb();
                 else wheel.PlayWin(outcome.SliceIndex);
@@ -83,7 +86,7 @@ namespace Game.Runtime.Flow
             if (!TryBegin(store.Current.CanLeave)) return;
             try
             {
-                var snapshot = await service.LeaveAsync(cancellationToken);
+                var snapshot = await SendAsync(service.LeaveAsync);
                 store.Apply(snapshot);
                 await leavePopup.ShowAsync(snapshot.Zone, Resolve(snapshot.Rewards), cancellationToken);
             }
@@ -95,7 +98,7 @@ namespace Game.Runtime.Flow
             if (!TryBegin(store.Current.CanRevive)) return;
             try
             {
-                store.Apply(await service.ReviveAsync(cancellationToken));
+                store.Apply(await SendAsync(service.ReviveAsync));
                 await bombPopup.HideAsync(cancellationToken);
             }
             finally { store.SetBusy(false); }
@@ -106,10 +109,24 @@ namespace Game.Runtime.Flow
             if (!TryBegin(store.Current.State != GameState.Idle)) return;
             try
             {
-                store.Apply(await service.RestartAsync(cancellationToken));
+                store.Apply(await SendAsync(service.RestartAsync));
                 await popup.HideAsync(cancellationToken);
             }
             finally { store.SetBusy(false); }
+        }
+
+        /// <summary>
+        /// Sends one intent to the authority. When it cannot be reached, the error popup blocks until the player taps RETRY and
+        /// the same intent is sent again (the remote service reuses its sequence number, so the server never rolls twice).
+        /// A refused intent or a bug is not caught here: the busy gate opens in the caller's finally and the exception surfaces.
+        /// </summary>
+        async UniTask<T> SendAsync<T>(Func<CancellationToken, UniTask<T>> intent)
+        {
+            while (true)
+            {
+                try { return await intent(cancellationToken); }
+                catch (RunServiceUnavailableException e) { await errorPopup.ShowUntilRetryAsync(e.Message, cancellationToken); }
+            }
         }
 
         /// <summary>Single entry gate: one intent in flight at a time, and only when the last snapshot allows it.</summary>

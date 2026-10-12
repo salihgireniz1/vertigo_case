@@ -38,6 +38,12 @@ namespace Game.Runtime.Views
         UniTask ShowAsync(int zone, IReadOnlyList<RewardEntry> rewards, CancellationToken cancellationToken);
     }
 
+    /// <summary>"Connection lost": shows the reason and completes only when the player asks to retry.</summary>
+    public interface IErrorPopupView : IPopupView
+    {
+        UniTask ShowUntilRetryAsync(string reason, CancellationToken cancellationToken);
+    }
+
     /// <summary>A reward stack resolved to its client asset.</summary>
     public readonly struct RewardEntry
     {

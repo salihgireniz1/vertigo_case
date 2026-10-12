@@ -27,6 +27,7 @@ namespace Game.Runtime
         [SerializeField] ZoneStripView zoneStrip;
         [SerializeField] BombPopupView bombPopup;
         [SerializeField] LeavePopupView leavePopup;
+        [SerializeField] ErrorPopupView errorPopup;
 
         IRunService service;
         RunStore store;
@@ -50,7 +51,7 @@ namespace Game.Runtime
             new ZoneStripPresenter(store, progression.Rules, zoneStrip, cancellationToken).AddTo(ref lifetime);
             new RewardsPresenter(store, catalog, rewardList).AddTo(ref lifetime);
 
-            var flow = new GameFlow(service, store, catalog, wheelView, hudView, bombPopup, leavePopup, resultHoldSeconds, cancellationToken);
+            var flow = new GameFlow(service, store, catalog, wheelView, hudView, bombPopup, leavePopup, errorPopup, resultHoldSeconds, cancellationToken);
             flow.AddTo(ref lifetime);
             flow.StartAsync().Forget();
         }
@@ -68,6 +69,7 @@ namespace Game.Runtime
             Require(zoneStrip, nameof(zoneStrip));
             Require(bombPopup, nameof(bombPopup));
             Require(leavePopup, nameof(leavePopup));
+            Require(errorPopup, nameof(errorPopup));
 
             var problem = config.Progression.Validate();
             if (problem != null) throw new InvalidOperationException($"{name}: {problem}");
@@ -88,6 +90,7 @@ namespace Game.Runtime
             zoneStrip = GetComponentInChildren<ZoneStripView>(true);
             bombPopup = GetComponentInChildren<BombPopupView>(true);
             leavePopup = GetComponentInChildren<LeavePopupView>(true);
+            errorPopup = GetComponentInChildren<ErrorPopupView>(true);
             rewardList = UiRefs.Find<RewardListView>(this, "ui_list_rewards");
         }
 #endif

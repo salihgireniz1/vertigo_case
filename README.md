@@ -73,7 +73,7 @@ Third-party: R3 (reactive store and bindings), UniTask (async flow), DOTween (wh
 ## Tests
 
 - `dotnet test Shared/Wheel.Rules.Tests`: 51 tests over `ZoneRules`, `SpinResolver` and `GameSession` (transition guards, bomb wipe, revive replay without bomb, wallet credit on leave, scaling, validation).
-- Unity Test Runner, EditMode: 9 `GameFlow` tests with a fake authority and fake views (busy gate, bomb popup, revive, double tap, exit).
+- Unity Test Runner, EditMode: 9 `GameFlow` tests with a fake authority and fake views (busy gate, bomb popup, revive, double tap, exit). Editor only (Window > General > Test Runner); CI has no Unity licence, so it runs only the shared library tests.
 
 ## Screenshots
 

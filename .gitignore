@@ -127,3 +127,9 @@ Shared/**/obj/
 # The shared rules project is hand-written, not Unity-generated
 !Shared/**/*.csproj
 !Shared/**/*.pdb
+
+# Personal editor tools, not part of the case
+/Assets/vHierarchy/
+/Assets/vHierarchy.meta
+/Assets/vInspector/
+/Assets/vInspector.meta

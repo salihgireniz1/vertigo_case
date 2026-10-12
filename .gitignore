@@ -133,3 +133,6 @@ Shared/**/obj/
 /Assets/vHierarchy.meta
 /Assets/vInspector/
 /Assets/vInspector.meta
+
+# Unity Performance Testing scratch files left behind by interrupted test runs
+/Assets/Resources/PerformanceTestRun*

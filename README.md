@@ -2,6 +2,11 @@
 
 Unity 6000.3.23f1 demo for the Vertigo Games Game Developer case. Critical Strike's "Card game" rules, played on a spinning revolver wheel, built the way an online feature has to be built: the rules live in a server-ready library and the client only renders what the authority decides.
 
+## Docs
+
+- [docs/design.md](docs/design.md): layers, why the rules are a shared library, the server scenario, decisions log, known gaps.
+- [docs/case-compliance.md](docs/case-compliance.md): every rule in the brief and where it is satisfied, plus the plan.
+
 ## Rules
 
 - Every zone you spin an eight-slice wheel. Seven slices hold rewards, one holds the bomb.

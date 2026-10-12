@@ -77,7 +77,7 @@ namespace Wheel.Rules.Tests
         }
 
         [Test]
-        public void Spin_Bomb_ClearsRewardsAndEntersBombed()
+        public void Spin_Bomb_KeepsRewardsAndEntersBombed()
         {
             var session = NewSession(CashSlice, BombSlice);
             session.Spin(Bronze);
@@ -85,7 +85,7 @@ namespace Wheel.Rules.Tests
             Assert.That(outcome.IsBomb, Is.True);
             Assert.That(outcome.Amount, Is.EqualTo(0));
             Assert.That(session.State, Is.EqualTo(GameState.Bombed));
-            Assert.That(session.Rewards.Stacks, Is.Empty);
+            Assert.That(session.Rewards.Stacks.Single().Amount, Is.EqualTo(100), "rewards stay on the table until revive or give up decides");
             Assert.That(session.Zone, Is.EqualTo(2), "bomb does not advance the zone");
             Assert.That(session.CanSpin, Is.False);
         }
@@ -173,6 +173,7 @@ namespace Wheel.Rules.Tests
             Assert.That(session.Zone, Is.EqualTo(2), "revive replays the bombed zone");
             Assert.That(session.State, Is.EqualTo(GameState.Idle));
             Assert.That(session.BombDisabled, Is.True);
+            Assert.That(session.Rewards.Stacks.Single().Amount, Is.EqualTo(100), "revive keeps the collected rewards");
 
             // The roll that would hit the bomb now lands elsewhere; the wheel still has eight slices.
             var outcome = session.Spin(Bronze);

@@ -8,7 +8,7 @@ Unity 6000.3.23f1 demo for the Vertigo Games Game Developer case. Critical Strik
 - Rewards grow every zone: `amount = base * (100 + growth% * (zone - 1)) / 100` (integer math, so client and server agree bit for bit).
 - Every 5th zone is a **safe zone** (silver wheel, no bomb). Every 30th is a **super zone** (golden wheel, special rewards, no bomb).
 - You can **exit** with everything you collected only while the wheel is idle in a safe or super zone. Gold collected on the wheel is credited to your wallet.
-- Hitting the bomb wipes the run. **Give up** restarts, **revive** pays gold and replays the same zone with the bomb chamber disabled.
+- Hitting the bomb stops the run. **Give up** wipes the rewards and restarts; **revive** pays gold, keeps the rewards and replays the same zone with the bomb chamber disabled.
 
 All numbers live in ScriptableObjects under `Assets/Game/Data` and can be changed in the inspector.
 
@@ -72,7 +72,7 @@ Third-party: R3 (reactive store and bindings), UniTask (async flow), DOTween (wh
 
 ## Tests
 
-- `dotnet test Shared/Wheel.Rules.Tests`: 51 tests over `ZoneRules`, `SpinResolver` and `GameSession` (transition guards, bomb wipe, revive replay without bomb, wallet credit on leave, scaling, validation).
+- `dotnet test Shared/Wheel.Rules.Tests`: 51 tests over `ZoneRules`, `SpinResolver` and `GameSession` (transition guards, bomb stop, revive keeping the rewards and replaying without the bomb, give-up wipe, wallet credit on leave, scaling, validation).
 - Unity Test Runner, EditMode: 9 `GameFlow` tests with a fake authority and fake views (busy gate, bomb popup, revive, double tap, exit). Editor only (Window > General > Test Runner); CI has no Unity licence, so it runs only the shared library tests.
 
 ## Screenshots

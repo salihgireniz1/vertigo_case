@@ -50,7 +50,7 @@ namespace Wheel.Rules
             var amount = 0;
             if (slice.IsBomb)
             {
-                Rewards.Clear();
+                // The rewards stay on the table: revive keeps them, give up (restart) wipes them.
                 state = GameState.Bombed;
             }
             else
@@ -73,7 +73,7 @@ namespace Wheel.Rules
             return true;
         }
 
-        /// <summary>Pays the revive cost and replays the current zone with the bomb slice disabled.</summary>
+        /// <summary>Pays the revive cost, keeps the collected rewards and replays the current zone with the bomb slice disabled.</summary>
         public bool TryRevive()
         {
             if (!CanRevive) return false;
